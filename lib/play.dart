@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'mqtt_controller.dart';
-import 'mqtt_settings.dart'; // Pastikan untuk mengimpor file mqtt_settings.dart
+import 'mqtt_settings.dart';
 
 class PlayPage extends StatefulWidget {
   final MqttController mqttController;
@@ -15,11 +15,11 @@ class PlayPage extends StatefulWidget {
 class _PlayPageState extends State<PlayPage> {
   bool isCommandInProgress = false;
   double hpValue = 1.0; // Nilai awal HP (1.0 = 100%)
+  double volumeValue = 20.0; // Nilai awal volume (0 - 30)
 
   @override
   void initState() {
     super.initState();
-    // Mengunci orientasi ke landscape saat berada di PlayPage
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
@@ -77,24 +77,21 @@ class _PlayPageState extends State<PlayPage> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
-          // Ikon tank
           const Icon(
-            Icons.local_shipping, // Ikon tank bawaan Flutter
+            Icons.local_shipping,
             color: Colors.green,
             size: 30,
           ),
           const SizedBox(width: 10),
-          // Bar HP
           Expanded(
             child: LinearProgressIndicator(
-              value: hpValue, // Nilai HP (0.0 hingga 1.0)
+              value: hpValue,
               backgroundColor: Colors.red[200],
               valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
-              minHeight: screenWidth * 0.02, // Tinggi bar responsif
+              minHeight: screenWidth * 0.02,
             ),
           ),
           const SizedBox(width: 10),
-          // Teks persentase HP
           Text(
             '${(hpValue * 100).toInt()}%',
             style: const TextStyle(
@@ -111,8 +108,9 @@ class _PlayPageState extends State<PlayPage> {
     final screenHeight = MediaQuery.of(context).size.height;
 
     final buttonSize = screenWidth * 0.07;
-    final smallButtonSize = screenWidth * 0.05;
+    final smallButtonSize = screenWidth * 0.03;
     final buttonSpacing = screenWidth * 0.02;
+    final buttontembak = screenWidth * 0.05;
 
     return Scaffold(
       appBar: AppBar(
@@ -121,14 +119,12 @@ class _PlayPageState extends State<PlayPage> {
           icon: const Icon(Icons.arrow_back),
           iconSize: 40.0,
           onPressed: () {
-            Navigator.pop(context); // Kembali ke halaman sebelumnya
+            Navigator.pop(context);
           },
         ),
         actions: [
-          // Tombol pengaturan di sebelah kanan AppBar
           Padding(
-            padding: const EdgeInsets.only(
-                right: 16.0), 
+            padding: const EdgeInsets.only(right: 16.0),
             child: IconButton(
               icon: const Icon(
                 Icons.settings,
@@ -136,7 +132,6 @@ class _PlayPageState extends State<PlayPage> {
               ),
               iconSize: 40.0,
               onPressed: () async {
-                // Menampilkan dialog pengaturan MQTT
                 await showDialog(
                   context: context,
                   barrierDismissible: true,
@@ -153,19 +148,14 @@ class _PlayPageState extends State<PlayPage> {
           ),
         ],
       ),
-
-
       body: Stack(
         children: [
-          // Bar HP di bagian atas layar
           Positioned(
             top: 20,
             left: 20,
             right: 20,
             child: buildHpBar(context),
           ),
-
-          // Kontrol maju dan mundur di kiri bawah
           Positioned(
             bottom: screenHeight * 0.05,
             left: screenWidth * 0.05,
@@ -187,8 +177,6 @@ class _PlayPageState extends State<PlayPage> {
               ],
             ),
           ),
-
-          // Kontrol kiri dan kanan di kanan bawah
           Positioned(
             bottom: screenHeight * 0.05,
             right: screenWidth * 0.05,
@@ -210,37 +198,92 @@ class _PlayPageState extends State<PlayPage> {
               ],
             ),
           ),
-
-          // Tombol "tembak" di kanan atas
           Positioned(
-            top: screenHeight * 0.25,
-            right: screenWidth * 0.15,
+            top: screenHeight * 0.30,
+            right: screenWidth * 0.16,
             child: buildControlButton(
               icon: Icons.radio_button_checked,
               activeColor: Colors.red,
               topic: '/control/tembak',
-              size: smallButtonSize,
+              size: buttontembak,
             ),
           ),
-
-          // Tombol geser kiri dan kanan di kiri atas
+          // Tombol Musik Berbaris Horizontal
           Positioned(
-            top: screenHeight * 0.25,
-            left: screenWidth * 0.09,
+            top: screenHeight * 0.35,
+            left: screenWidth * 0.07,
             child: Row(
               children: [
                 buildControlButton(
-                  icon: Icons.arrow_left,
-                  activeColor: Colors.blue,
-                  topic: '/control/geser_kiri',
+                  icon: Icons.music_note,
+                  activeColor: Colors.green,
+                  topic: '/control/play_music_1',
                   size: smallButtonSize,
                 ),
                 SizedBox(width: buttonSpacing),
                 buildControlButton(
-                  icon: Icons.arrow_right,
-                  activeColor: Colors.blue,
-                  topic: '/control/geser_kanan',
+                  icon: Icons.music_note,
+                  activeColor: Colors.green,
+                  topic: '/control/play_music_2',
                   size: smallButtonSize,
+                ),
+                SizedBox(width: buttonSpacing),
+                buildControlButton(
+                  icon: Icons.music_note,
+                  activeColor: Colors.green,
+                  topic: '/control/play_music_3',
+                  size: smallButtonSize,
+                ),
+                SizedBox(width: buttonSpacing),
+                buildControlButton(
+                  icon: Icons.music_note,
+                  activeColor: Colors.green,
+                  topic: '/control/play_music_4',
+                  size: smallButtonSize,
+                ),
+                SizedBox(width: buttonSpacing),
+                buildControlButton(
+                  icon: Icons.music_note,
+                  activeColor: Colors.green,
+                  topic: '/control/play_music_5',
+                  size: smallButtonSize,
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+            top: screenHeight * 0.55, // Posisi vertikal di bawah tombol musik
+            left: screenWidth * 0.47, // Menyelaraskan dengan tombol musik
+            child: buildControlButton(
+              icon: Icons.stop, // Ikon untuk tombol stop
+              activeColor: Colors.red,
+              topic: '/control/stop_music',
+              size: smallButtonSize,
+            ),
+          ),
+          // Slider Volume
+          Positioned(
+            top: screenHeight * 0.70, // Posisi di bawah tombol stop
+            left: screenWidth * 0.35, // Mengatur posisi lebih ke tengah
+            child: Column(
+              children: [
+                SizedBox(
+                  width: screenWidth * 0.3, // Lebar slider dibuat lebih pendek
+                  child: Slider(
+                    value: volumeValue,
+                    min: 0,
+                    max: 30,
+                    divisions: 30,
+                    label: volumeValue.toInt().toString(),
+                    onChanged: (value) {
+                      setState(() {
+                        volumeValue = value;
+                      });
+                    },
+                    onChangeEnd: (value) {
+                      sendCommand('/control/volume', value.toInt().toString());
+                    },
+                  ),
                 ),
               ],
             ),
