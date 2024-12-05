@@ -22,7 +22,7 @@ void main() {
 class MyApp extends StatelessWidget {
   final MqttController mqttController;
 
-  MyApp({required this.mqttController});
+  const MyApp({super.key, required this.mqttController});
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +38,7 @@ class MyApp extends StatelessWidget {
               title: 'Game Tank Controller',
               theme: ThemeData(primarySwatch: Colors.blue),
               debugShowCheckedModeBanner: false,
+              // ignore: sized_box_for_whitespace
               home: Container(
                 width: constraints.maxWidth,
                 height: constraints.maxHeight,

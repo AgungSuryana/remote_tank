@@ -5,9 +5,10 @@ import 'mqtt_controller.dart';
 class MqttSettings extends StatefulWidget {
   final MqttController mqttController;
 
-  MqttSettings({required this.mqttController});
+  const MqttSettings({super.key, required this.mqttController});
 
   @override
+  // ignore: library_private_types_in_public_api
   _MqttSettingsState createState() => _MqttSettingsState();
 }
 
@@ -67,6 +68,7 @@ class _MqttSettingsState extends State<MqttSettings> {
       );
 
       // Tutup dialog setelah berhasil
+      // ignore: use_build_context_synchronously
       Navigator.pop(context);
     } else {
       Fluttertoast.showToast(
@@ -92,7 +94,7 @@ class _MqttSettingsState extends State<MqttSettings> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
+              const Text(
                 'MQTT Settings',
                 style: TextStyle(
                   fontSize: 16,
@@ -105,9 +107,9 @@ class _MqttSettingsState extends State<MqttSettings> {
                 controller: ipController,
                 decoration: InputDecoration(
                   labelText: 'IP Address',
-                  labelStyle: TextStyle(color: Colors.white),
+                  labelStyle: const TextStyle(color: Colors.white),
                   hintText: '192.168.1.1',
-                  hintStyle: TextStyle(color: Colors.white70),
+                  hintStyle: const TextStyle(color: Colors.white70),
                   filled: true,
                   fillColor: Colors.white24, // Warna input field
                   border: OutlineInputBorder(
@@ -124,9 +126,9 @@ class _MqttSettingsState extends State<MqttSettings> {
                 controller: portController,
                 decoration: InputDecoration(
                   labelText: 'Port',
-                  labelStyle: TextStyle(color: Colors.white),
+                  labelStyle: const TextStyle(color: Colors.white),
                   hintText: '1883',
-                  hintStyle: TextStyle(color: Colors.white70),
+                  hintStyle: const TextStyle(color: Colors.white70),
                   filled: true,
                   fillColor: Colors.white24, // Warna input field
                   border: OutlineInputBorder(

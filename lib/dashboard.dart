@@ -9,9 +9,11 @@ import 'play.dart';
 class Dashboard extends StatefulWidget {
   final MqttController mqttController;
 
+  // ignore: use_super_parameters
   const Dashboard({Key? key, required this.mqttController}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _DashboardState createState() => _DashboardState();
 }
 
@@ -41,13 +43,14 @@ class _DashboardState extends State<Dashboard> {
       ..initialize().then((_) {
         if (mounted) {
           setState(() {
-            _isVideoInitialized = true; // Set to true once video is initialized
+            _isVideoInitialized = true; 
           });
-          _videoController.setLooping(true); // Looping video
-          _videoController.play(); // Auto play
+          _videoController.setLooping(true); 
+          _videoController.play(); 
         }
       }).catchError((error) {
         // Tangani jika terjadi error
+        // ignore: avoid_print
         print("Error loading video: $error");
         if (mounted) {
           setState(() {
@@ -93,6 +96,7 @@ class _DashboardState extends State<Dashboard> {
                   // Bagian kiri: Sensor
                   Expanded(
                     flex: 2,
+                    // ignore: avoid_unnecessary_containers
                     child: Container(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -133,7 +137,7 @@ class _DashboardState extends State<Dashboard> {
                             child: _isVideoInitialized
                                 ? VideoPlayer(
                                     _videoController) // Tampilkan video jika sudah siap
-                                : CircularProgressIndicator(), // Tampilkan loading jika video belum siap
+                                : const CircularProgressIndicator(), // Tampilkan loading jika video belum siap
                           ),
                         ),
                         SizedBox(height: 30.h),

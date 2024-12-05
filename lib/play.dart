@@ -9,6 +9,7 @@ class PlayPage extends StatefulWidget {
   const PlayPage({super.key, required this.mqttController});
 
   @override
+  // ignore: library_private_types_in_public_api
   _PlayPageState createState() => _PlayPageState();
 }
 
@@ -41,6 +42,7 @@ class _PlayPageState extends State<PlayPage> {
     try {
       await widget.mqttController.publishMessage(topic, message);
     } catch (e) {
+      // ignore: avoid_print
       print('Error sending MQTT command: $e');
     } finally {
       setState(() {
@@ -87,7 +89,7 @@ class _PlayPageState extends State<PlayPage> {
             child: LinearProgressIndicator(
               value: hpValue,
               backgroundColor: Colors.red[200],
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+              valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
               minHeight: screenWidth * 0.02,
             ),
           ),

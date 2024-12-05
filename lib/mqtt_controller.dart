@@ -29,19 +29,23 @@ class MqttController {
     client.connectionMessage = connMessage;
 
     try {
+      // ignore: avoid_print
       print('Connecting to MQTT broker...');
       await client.connect();
     } catch (e) {
+      // ignore: avoid_print
       print('Connection failed: $e');
       disconnect(); // Pastikan koneksi dilepas jika gagal
       return false;
     }
 
     if (client.connectionStatus?.state == MqttConnectionState.connected) {
+      // ignore: avoid_print
       print('Connected to MQTT broker');
       connectionStatus.value = true;
       return true; // Berhasil
     } else {
+      // ignore: avoid_print
       print('Connection failed with state: ${client.connectionStatus?.state}');
       disconnect();
       return false; // Gagal
@@ -51,6 +55,7 @@ class MqttController {
   // Callback saat terputus dari broker MQTT
   void onDisconnected() {
     connectionStatus.value = false;
+    // ignore: avoid_print
     print('Disconnected from MQTT broker');
   }
 
@@ -59,6 +64,7 @@ class MqttController {
     if (connectionStatus.value) {
       client.disconnect();
       connectionStatus.value = false;
+      // ignore: avoid_print
       print('Disconnected');
     }
   }
@@ -70,11 +76,14 @@ class MqttController {
       builder.addString(message);
       try {
         client.publishMessage(topic, MqttQos.atLeastOnce, builder.payload!);
+        // ignore: avoid_print
         print("Message published to topic $topic: $message");
       } catch (e) {
+        // ignore: avoid_print
         print("Failed to publish message: $e");
       }
     } else {
+      // ignore: avoid_print
       print("Cannot publish, client is not connected");
     }
   }
@@ -84,11 +93,14 @@ class MqttController {
     if (client.connectionStatus?.state == MqttConnectionState.connected) {
       try {
         client.subscribe(topic, MqttQos.atLeastOnce);
+        // ignore: avoid_print
         print("Subscribed to topic $topic");
       } catch (e) {
+        // ignore: avoid_print
         print("Failed to subscribe to topic $topic: $e");
       }
     } else {
+      // ignore: avoid_print
       print("Cannot subscribe, client is not connected");
     }
   }
@@ -98,11 +110,14 @@ class MqttController {
     if (client.connectionStatus?.state == MqttConnectionState.connected) {
       try {
         client.unsubscribe(topic);
+        // ignore: avoid_print
         print("Unsubscribed from topic $topic");
       } catch (e) {
+        // ignore: avoid_print
         print("Failed to unsubscribe from topic $topic: $e");
       }
     } else {
+      // ignore: avoid_print
       print("Cannot unsubscribe, client is not connected");
     }
   }
@@ -114,6 +129,7 @@ class MqttController {
       final payload =
           MqttPublishPayload.bytesToStringAsString(recMessage.payload.message);
 
+      // ignore: avoid_print
       print('Message received on topic ${messages?[0].topic}: $payload');
       onMessage(messages![0].topic, payload);
     });
