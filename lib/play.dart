@@ -16,6 +16,7 @@ class _PlayPageState extends State<PlayPage> {
   bool isCommandInProgress = false;
   double hpValue = 1.0; // Nilai awal HP (1.0 = 100%)
   double volumeValue = 20.0; // Nilai awal volume (0 - 30)
+  String vibrationText = "0";
 
   @override
   void initState() {
@@ -39,11 +40,13 @@ class _PlayPageState extends State<PlayPage> {
   }
 
   void handleVibration(String message) {
+    // ignore: avoid_print
     print('Message received: $message'); // Debug log
     final vibrationValue = int.tryParse(message) ?? 0;
 
     // Kurangi HP berdasarkan nilai getaran
     setState(() {
+      vibrationText = message; // Simpan nilai getaran untuk ditampilkan
       if (vibrationValue >= 2500) {
         hpValue = (hpValue - 0.3).clamp(0.0, 1.0); // Kurangi 30%
       } else if (vibrationValue >= 2000) {
@@ -90,7 +93,7 @@ class _PlayPageState extends State<PlayPage> {
     });
 
     try {
-      await widget.mqttController.publishMessage(topic, message);
+      await widget.mqttController.publishMessage(topic, message, context);
     } catch (e) {
       print('Error sending MQTT command: $e');
     } finally {
@@ -153,7 +156,6 @@ class _PlayPageState extends State<PlayPage> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -162,7 +164,7 @@ class _PlayPageState extends State<PlayPage> {
     final buttonSize = screenWidth * 0.07;
     final smallButtonSize = screenWidth * 0.03;
     final buttonSpacing = screenWidth * 0.02;
-    final buttontembak = screenWidth * 0.05;
+    final buttontembak = screenWidth * 0.04;
 
     return Scaffold(
       appBar: AppBar(
@@ -207,6 +209,18 @@ class _PlayPageState extends State<PlayPage> {
             left: 20,
             right: 20,
             child: buildHpBar(context),
+          ),
+          Positioned(
+            top: 70,
+            left: 75,
+            child: Text(
+              "Damage: $vibrationText",
+              style: const TextStyle(
+                fontSize: 25,
+                fontWeight: FontWeight.bold,
+                color: Colors.red,
+              ),
+            ),
           ),
           Positioned(
             bottom: screenHeight * 0.05,
