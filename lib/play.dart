@@ -9,7 +9,6 @@ class PlayPage extends StatefulWidget {
   const PlayPage({super.key, required this.mqttController});
 
   @override
-  // ignore: library_private_types_in_public_api
   _PlayPageState createState() => _PlayPageState();
 }
 
@@ -21,15 +20,66 @@ class _PlayPageState extends State<PlayPage> {
   @override
   void initState() {
     super.initState();
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
+    SystemChrome.setPreferredOrientations(
+        [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+
+    // Subscribe ke topik getaran MQTT
+    widget.mqttController.subscribe("esp32/vibration");
+    widget.mqttController.listenToMessages((String topic, String message) {
+      if (topic == "esp32/vibration") {
+        handleVibration(message);
+      }
+    });
   }
 
   @override
   void dispose() {
     super.dispose();
+    widget.mqttController.unsubscribe("esp32/vibration");
+  }
+
+  void handleVibration(String message) {
+    print('Message received: $message'); // Debug log
+    final vibrationValue = int.tryParse(message) ?? 0;
+
+    // Kurangi HP berdasarkan nilai getaran
+    setState(() {
+      if (vibrationValue >= 2500) {
+        hpValue = (hpValue - 0.3).clamp(0.0, 1.0); // Kurangi 30%
+      } else if (vibrationValue >= 2000) {
+        hpValue = (hpValue - 0.2).clamp(0.0, 1.0); // Kurangi 20%
+      } else if (vibrationValue >= 1000) {
+        hpValue = (hpValue - 0.15).clamp(0.0, 1.0); // Kurangi 15%
+      } else if (vibrationValue >= 500) {
+        hpValue = (hpValue - 0.05).clamp(0.0, 1.0); // Kurangi 5%
+      }
+
+      // Jika HP mencapai 0
+      if (hpValue <= 0.0) {
+        showGameOverDialog();
+      }
+    });
+  }
+
+  void showGameOverDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Game Over"),
+          content: const Text("HP Anda telah habis!"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Tutup dialog
+                Navigator.pop(context); // Kembali ke halaman sebelumnya
+              },
+              child: const Text("Keluar"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> sendCommand(String topic, String message) async {
@@ -42,7 +92,6 @@ class _PlayPageState extends State<PlayPage> {
     try {
       await widget.mqttController.publishMessage(topic, message);
     } catch (e) {
-      // ignore: avoid_print
       print('Error sending MQTT command: $e');
     } finally {
       setState(() {
@@ -103,6 +152,7 @@ class _PlayPageState extends State<PlayPage> {
       ),
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -255,7 +305,7 @@ class _PlayPageState extends State<PlayPage> {
           ),
           Positioned(
             top: screenHeight * 0.55, // Posisi vertikal di bawah tombol musik
-            left: screenWidth * 0.47, // Menyelaraskan dengan tombol musik
+            left: screenWidth * 0.47, // Menyelarakan dengan tombol musik
             child: buildControlButton(
               icon: Icons.stop, // Ikon untuk tombol stop
               activeColor: Colors.red,
