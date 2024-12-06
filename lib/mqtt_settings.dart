@@ -87,7 +87,8 @@ class _MqttSettingsState extends State<MqttSettings> {
         width: 300,
         padding: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(
-          color: Colors.red, // Warna utama dialog
+          color:Color(0xFF800000),
+ // Warna utama dialog
           borderRadius: BorderRadius.circular(12),
         ),
         child: SingleChildScrollView(

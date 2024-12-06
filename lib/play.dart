@@ -127,29 +127,36 @@ class _PlayPageState extends State<PlayPage> {
   Widget buildHpBar(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
 
+    // Menentukan panjang yang lebih pendek untuk HP bar
+    final barWidth = screenWidth * 0.6; // 50% dari lebar layar
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
+        mainAxisAlignment:
+            MainAxisAlignment.center, // Menyusun elemen di tengah
         children: [
-          const Icon(
-            Icons.local_shipping,
-            color: Colors.green,
-            size: 30,
+          Image.asset(
+            'assets/icon.png', // Ganti dengan path gambar Anda
+            width: 40, // Tentukan ukuran gambar sesuai kebutuhan
+            height: 40, // Tentukan ukuran gambar sesuai kebutuhan
           ),
           const SizedBox(width: 10),
-          Expanded(
+          // Membatasi lebar HP bar agar tidak terlalu panjang dan menempatkannya di tengah
+          Container(
+            width: barWidth, // Lebar yang sudah dibatasi
             child: LinearProgressIndicator(
               value: hpValue,
               backgroundColor: Colors.red[200],
               valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
-              minHeight: screenWidth * 0.02,
+              minHeight: 10, // Ukuran tinggi yang sesuai
             ),
           ),
           const SizedBox(width: 10),
           Text(
             '${(hpValue * 100).toInt()}%',
             style: const TextStyle(
-                color: Colors.black, fontWeight: FontWeight.bold),
+                color: Color(0xFF800000), fontWeight: FontWeight.bold),
           ),
         ],
       ),
@@ -167,22 +174,36 @@ class _PlayPageState extends State<PlayPage> {
     final buttontembak = screenWidth * 0.04;
 
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          color: Colors.red,
-          icon: const Icon(Icons.arrow_back),
-          iconSize: 40.0,
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
+      body: Stack(
+        children: [
+          // Background image (menggantikan AppBar)
+          Positioned.fill(
+            child: Image.asset(
+              'assets/play.jpg', // Path gambar background
+              fit: BoxFit.cover,
+            ),
+          ),
+
+          // Ikon kembali dan pengaturan
+          Positioned(
+            top: 10,
+            left: 10,
+            child: IconButton(
+              color: Color(0xFF800000),
+              icon: const Icon(Icons.arrow_back),
+              iconSize: 40.0,
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          ),
+          Positioned(
+            top: 10,
+            right: 10,
             child: IconButton(
               icon: const Icon(
                 Icons.settings,
-                color: Colors.red,
+                color: Color(0xFF800000),
               ),
               iconSize: 40.0,
               onPressed: () async {
@@ -200,10 +221,8 @@ class _PlayPageState extends State<PlayPage> {
               },
             ),
           ),
-        ],
-      ),
-      body: Stack(
-        children: [
+
+          // Konten lainnya
           Positioned(
             top: 20,
             left: 20,
@@ -218,7 +237,7 @@ class _PlayPageState extends State<PlayPage> {
               style: const TextStyle(
                 fontSize: 25,
                 fontWeight: FontWeight.bold,
-                color: Colors.red,
+                color: Color(0xFF800000)
               ),
             ),
           ),
@@ -265,18 +284,18 @@ class _PlayPageState extends State<PlayPage> {
             ),
           ),
           Positioned(
-            top: screenHeight * 0.30,
+            top: screenHeight * 0.45,
             right: screenWidth * 0.16,
             child: buildControlButton(
               icon: Icons.radio_button_checked,
-              activeColor: Colors.red,
+              activeColor: const Color(0xFF800000),
               topic: '/control/tembak',
               size: buttontembak,
             ),
           ),
           // Tombol Musik Berbaris Horizontal
           Positioned(
-            top: screenHeight * 0.35,
+            top: screenHeight * 0.45,
             left: screenWidth * 0.07,
             child: Row(
               children: [
@@ -318,18 +337,18 @@ class _PlayPageState extends State<PlayPage> {
             ),
           ),
           Positioned(
-            top: screenHeight * 0.55, // Posisi vertikal di bawah tombol musik
+            top: screenHeight * 0.65, // Posisi vertikal di bawah tombol musik
             left: screenWidth * 0.47, // Menyelarakan dengan tombol musik
             child: buildControlButton(
               icon: Icons.stop, // Ikon untuk tombol stop
-              activeColor: Colors.red,
+              activeColor:Color(0xFF800000),
               topic: '/control/stop_music',
               size: smallButtonSize,
             ),
           ),
           // Slider Volume
           Positioned(
-            top: screenHeight * 0.70, // Posisi di bawah tombol stop
+            top: screenHeight * 0.80, // Posisi di bawah tombol stop
             left: screenWidth * 0.35, // Mengatur posisi lebih ke tengah
             child: Column(
               children: [
