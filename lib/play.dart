@@ -92,13 +92,19 @@ class _PlayPageState extends State<PlayPage> {
     }
   }
 
-// Fungsi untuk memeriksa apakah perubahan getaran cukup signifikan
   bool _isSignificantChange(int vibrationValue) {
-    // Tentukan threshold perubahan (misalnya 5% dari nilai sebelumnya)
-    const double threshold = 0.05; // 5% dari perubahan nilai getaran
-    return (lastVibrationValue == 0) ||
-        (vibrationValue - lastVibrationValue).abs() >
-            lastVibrationValue * threshold;
+    // Threshold perubahan dalam persentase
+    const double percentageThreshold = 0.001; // 1% dari nilai sebelumnya
+
+    // Threshold perubahan dalam nilai absolut
+    const int absoluteThreshold = 1; // Minimal perubahan absolut 50
+
+    // Perubahan absolut antara nilai getaran sekarang dan sebelumnya
+    final int change = (vibrationValue - lastVibrationValue).abs();
+
+    // Periksa apakah perubahan memenuhi salah satu dari dua kriteria
+    return change >= lastVibrationValue * percentageThreshold ||
+        change >= absoluteThreshold;
   }
 
   void handleVibration(String message) {
