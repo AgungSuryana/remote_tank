@@ -19,7 +19,6 @@ class _DashboardState extends State<Dashboard> {
   @override
   void initState() {
     super.initState();
-    precacheImage(AssetImage('assets/bg.jpg'), context);
     // Mengunci layar dalam orientasi landscape
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeLeft,
@@ -30,7 +29,12 @@ class _DashboardState extends State<Dashboard> {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   }
 
-
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Precache image setelah context tersedia
+    precacheImage(const AssetImage('assets/bg.webp'), context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,15 +58,14 @@ class _DashboardState extends State<Dashboard> {
               Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  // Adjust the height dynamically based on the screen size
                   SizedBox(
-                      height: MediaQuery.of(context).size.height *
-                          0.7), // 40% of screen height
+                    height: MediaQuery.of(context).size.height * 0.7,
+                  ), // Spasi vertikal
 
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      // Tombol Monitoring dengan latar putih dan teks merah
+                      // Tombol Monitoring
                       Container(
                         margin: EdgeInsets.only(left: 300.w),
                         child: SizedBox(
@@ -89,7 +92,7 @@ class _DashboardState extends State<Dashboard> {
                       ),
                       SizedBox(width: 20.w), // Jarak antar tombol
 
-                      // Tombol Play dengan border tanpa latar belakang
+                      // Tombol Play
                       SizedBox(
                         width: 250.w,
                         height: 60.h,
@@ -132,8 +135,10 @@ class _DashboardState extends State<Dashboard> {
                 left: 30.w,
                 child: IconButton(
                   iconSize: 90.sp,
-                  icon: const Icon(Icons.settings,
-                      color: Color.fromARGB(255, 255, 255, 255)),
+                  icon: const Icon(
+                    Icons.settings,
+                    color: Colors.white,
+                  ),
                   onPressed: () async {
                     await showDialog(
                       context: context,

@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'mqtt_controller.dart';
 import 'mqtt_settings.dart';
+import 'dart:async';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class PlayPage extends StatefulWidget {
   final MqttController mqttController;
@@ -17,6 +20,7 @@ class _PlayPageState extends State<PlayPage> {
   double hpValue = 1.0; // Nilai awal HP (1.0 = 100%)
   double volumeValue = 20.0; // Nilai awal volume (0 - 30)
   String vibrationText = "0";
+  Timer? _timer;
 
   @override
   void initState() {
@@ -24,25 +28,83 @@ class _PlayPageState extends State<PlayPage> {
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
 
-    // Subscribe ke topik getaran MQTT
-    widget.mqttController.subscribe("esp32/vibration");
-    widget.mqttController.listenToMessages((String topic, String message) {
-      if (topic == "esp32/vibration") {
-        handleVibration(message);
-      }
-    });
+    // Mulai polling data dari API secara periodik
+    _startPolling();
   }
 
   @override
   void dispose() {
+    _timer?.cancel(); // Hentikan polling saat widget dihapus
     super.dispose();
-    widget.mqttController.unsubscribe("esp32/vibration");
+  }
+
+  void _startPolling() {
+    _timer = Timer.periodic(const Duration(seconds: 2), (timer) async {
+      await _fetchVibrationData();
+    });
+  }
+
+  Future<void> _fetchVibrationData() async {
+    try {
+      final response = await http
+          .get(Uri.parse('https://backend-tank.vercel.app/api/piezzo'));
+
+      if (response.statusCode == 200) {
+        print('Raw response: ${response.body}'); // Debug respons mentah
+
+        final data = json.decode(response.body);
+        print('Decoded data: $data'); // Debug hasil decode
+
+        // Pastikan ada elemen dalam array 'data'
+        if (data['data'] != null && data['data'].isNotEmpty) {
+          final firstItem = data['data'][0]; // Ambil elemen pertama dari array
+          final vibrationValue =
+              firstItem['vibrationLevel'] ?? 0; // Ambil vibrationLevel
+          print(
+              'Extracted vibration value: $vibrationValue'); // Debug nilai getaran
+
+          // Menghindari perubahan HP jika polling pertama
+          if (isFirstPoll) {
+            setState(() {
+              isFirstPoll = false; // Tandai polling pertama selesai
+              lastVibrationValue =
+                  vibrationValue; // Simpan nilai getaran pertama
+            });
+            return; // Jangan langsung update HP pada polling pertama
+          }
+
+          // Jika ada perubahan signifikan, baru lakukan pembaruan HP
+          if (_isSignificantChange(vibrationValue)) {
+            handleVibration(vibrationValue.toString());
+            setState(() {
+              lastVibrationValue =
+                  vibrationValue; // Simpan nilai getaran terakhir
+            });
+          }
+        } else {
+          print('No vibration data available.');
+        }
+      } else {
+        print('Failed to fetch data. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching vibration data: $e');
+    }
+  }
+
+// Fungsi untuk memeriksa apakah perubahan getaran cukup signifikan
+  bool _isSignificantChange(int vibrationValue) {
+    // Tentukan threshold perubahan (misalnya 5% dari nilai sebelumnya)
+    const double threshold = 0.05; // 5% dari perubahan nilai getaran
+    return (lastVibrationValue == 0) ||
+        (vibrationValue - lastVibrationValue).abs() >
+            lastVibrationValue * threshold;
   }
 
   void handleVibration(String message) {
-    // ignore: avoid_print
     print('Message received: $message'); // Debug log
     final vibrationValue = int.tryParse(message) ?? 0;
+    print('Parsed vibration value: $vibrationValue'); // Debug log
 
     // Kurangi HP berdasarkan nilai getaran
     setState(() {
@@ -63,6 +125,10 @@ class _PlayPageState extends State<PlayPage> {
       }
     });
   }
+
+// Variabel untuk menyimpan nilai getaran terakhir
+  int lastVibrationValue = 0;
+  bool isFirstPoll = true; // Flag untuk mendeteksi polling pertama
 
   void showGameOverDialog() {
     showDialog(
@@ -235,10 +301,9 @@ class _PlayPageState extends State<PlayPage> {
             child: Text(
               "Damage: $vibrationText",
               style: const TextStyle(
-                fontSize: 25,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF800000)
-              ),
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF800000)),
             ),
           ),
           Positioned(
@@ -341,7 +406,7 @@ class _PlayPageState extends State<PlayPage> {
             left: screenWidth * 0.47, // Menyelarakan dengan tombol musik
             child: buildControlButton(
               icon: Icons.stop, // Ikon untuk tombol stop
-              activeColor:Color(0xFF800000),
+              activeColor: Color(0xFF800000),
               topic: '/control/stop_music',
               size: smallButtonSize,
             ),
