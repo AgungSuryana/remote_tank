@@ -22,6 +22,28 @@ class _PlayPageState extends State<PlayPage> {
   String vibrationText = "0";
   Timer? _timer;
 
+  Future<void> sendApiCommand(
+      String endpoint, Map<String, dynamic> body) async {
+    final url = Uri.parse(
+        'https://backend-musik-tank.vercel.app/$endpoint'); // Ganti dengan URL API Anda
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(
+            body), // Gunakan jsonEncode untuk mengonversi Map ke JSON string
+      );
+
+      if (response.statusCode == 200) {
+        print('Success: ${response.body}');
+      } else {
+        print('Failed: ${response.statusCode} ${response.body}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -178,12 +200,24 @@ class _PlayPageState extends State<PlayPage> {
   Widget buildControlButton({
     required IconData icon,
     required Color activeColor,
-    required String topic,
     required double size,
+    String? topic, // Optional untuk MQTT
+    String? endpoint, // Optional untuk API
+    Map<String, dynamic>? body, // Optional untuk API
   }) {
     return GestureDetector(
-      onTapDown: (_) => sendCommand(topic, '1'),
-      onTapUp: (_) => sendCommand(topic, '0'),
+      onTapDown: (_) {
+        if (topic != null) {
+          sendCommand(topic, '1'); // MQTT command
+        } else if (endpoint != null) {
+          sendApiCommand(endpoint, body ?? {}); // API call
+        }
+      },
+      onTapUp: (_) {
+        if (topic != null) {
+          sendCommand(topic, '0'); // MQTT stop command
+        }
+      },
       child: CircleAvatar(
         radius: size,
         backgroundColor: isCommandInProgress ? Colors.grey : activeColor,
@@ -373,47 +407,54 @@ class _PlayPageState extends State<PlayPage> {
                 buildControlButton(
                   icon: Icons.music_note,
                   activeColor: Colors.green,
-                  topic: '/control/play_music_1',
+                  endpoint: 'play',
+                  body: {'musicId': 1},
                   size: smallButtonSize,
                 ),
                 SizedBox(width: buttonSpacing),
                 buildControlButton(
                   icon: Icons.music_note,
                   activeColor: Colors.green,
-                  topic: '/control/play_music_2',
+                  endpoint: 'play',
+                  body: {'musicId': 2},
                   size: smallButtonSize,
                 ),
                 SizedBox(width: buttonSpacing),
                 buildControlButton(
                   icon: Icons.music_note,
                   activeColor: Colors.green,
-                  topic: '/control/play_music_3',
+                  endpoint: 'play',
+                  body: {'musicId': 3},
                   size: smallButtonSize,
                 ),
                 SizedBox(width: buttonSpacing),
                 buildControlButton(
                   icon: Icons.music_note,
                   activeColor: Colors.green,
-                  topic: '/control/play_music_4',
+                  endpoint: 'play',
+                  body: {'musicId': 4},
                   size: smallButtonSize,
                 ),
                 SizedBox(width: buttonSpacing),
                 buildControlButton(
                   icon: Icons.music_note,
                   activeColor: Colors.green,
-                  topic: '/control/play_music_5',
+                  endpoint: 'play',
+                  body: {'musicId': 5},
                   size: smallButtonSize,
                 ),
               ],
             ),
           ),
+          // Tombol Stop
           Positioned(
-            top: screenHeight * 0.65, // Posisi vertikal di bawah tombol musik
-            left: screenWidth * 0.47, // Menyelarakan dengan tombol musik
+            top: screenHeight * 0.65,
+            left: screenWidth * 0.47,
             child: buildControlButton(
-              icon: Icons.stop, // Ikon untuk tombol stop
-              activeColor: Color(0xFF800000),
-              topic: '/control/stop_music',
+              icon: Icons.stop,
+              activeColor: const Color(0xFF800000),
+              endpoint: 'stop',
+              body: {},
               size: smallButtonSize,
             ),
           ),
